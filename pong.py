@@ -4,6 +4,7 @@ import pygame, sys
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 PADDLE_START_X = 10
+PADDLE2_START_X = SCREEN_WIDTH-10
 PADDLE_START_Y = 20
 PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 100
@@ -14,6 +15,15 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pong")
 
+# Load sound
+try:
+	sound_name = "explosion.wav"
+	sound = pygame.mixer.Sound(sound_name)
+except pygame.error, message:
+	print "Cannot load sound: " + sound_name
+	raise SystemExit, message
+	sound = None
+
 # This is a rect that contains the ball at the beginning it is set in the center of the screen
 ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
 
@@ -22,9 +32,12 @@ ball_speed = [BALL_SPEED, BALL_SPEED]
 
 # Your paddle vertically centered on the left side
 paddle_rect = pygame.Rect((PADDLE_START_X, PADDLE_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
+paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
+
 
 # Scoring: 1 point if you hit the ball, -5 point if you miss the ball
 score = 0
+score2 = 0
 
 # Load the font for displaying the score
 font = pygame.font.Font(None, 30)
@@ -61,13 +74,24 @@ while True:
 	# Ball collision with rails
 	if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
 		ball_speed[1] = -ball_speed[1]
-	if ball_rect.right >= SCREEN_WIDTH or ball_rect.left <= 0:
+	if ball_rect.right >= SCREEN_WIDTH:
 		ball_speed[0] = -ball_speed[0]
+		score += 1
+		ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
+	if ball_rect.left <= 0:
+		ball_speed[0] = -ball_speed[0]
+		score2 += 1
+		ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
+
 
 	# Test if the ball is hit by the paddle; if yes reverse speed and add a point
 	if paddle_rect.colliderect(ball_rect):
 		ball_speed[0] = -ball_speed[0]
-		score += 1
+		sound.play()
+	
+	if paddle2_rect.colliderect(ball_rect):
+		ball_speed[0] = -ball_speed[0]
+		sound.play()
 	
 	# Clear screen
 	screen.fill((255, 255, 255))
@@ -76,7 +100,9 @@ while True:
 	pygame.draw.rect(screen, (0, 0, 0), paddle_rect) # Your paddle
 	pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
 	score_text = font.render(str(score), True, (0, 0, 0))
-	screen.blit(score_text, ((SCREEN_WIDTH / 2) - font.size(str(score))[0] / 2, 5)) # The score
+	score_text2 = font.render(str(score2), True, (0, 0, 0))
+	screen.blit(score_text, ((SCREEN_WIDTH / 4) - font.size(str(score))[0] / 2, 5)) # Your score
+	screen.blit(score_text2, ((3*SCREEN_WIDTH / 4) - font.size(str(score2))[0] / 2, 5)) # Other score
 	
 	# Update screen and wait 20 milliseconds
 	pygame.display.flip()
