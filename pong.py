@@ -4,7 +4,7 @@ import pygame, sys
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 PADDLE_START_X = 10
-PADDLE2_START_X = SCREEN_WIDTH-10
+PADDLE2_START_X = SCREEN_WIDTH-20
 PADDLE_START_Y = 20
 PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 100
@@ -59,9 +59,13 @@ while True:
 				paddle_rect.bottom = SCREEN_HEIGHT
 
 	# This test if up or down keys are pressed; if yes, move the paddle
-	if pygame.key.get_pressed()[pygame.K_UP] and paddle_rect.top > 0:
+	if pygame.key.get_pressed()[pygame.K_UP] and paddle2_rect.top > 0:
+		paddle2_rect.top -= BALL_SPEED
+	elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle2_rect.bottom < SCREEN_HEIGHT:
+		paddle2_rect.top += BALL_SPEED
+	if pygame.key.get_pressed()[pygame.K_w] and paddle_rect.top > 0:
 		paddle_rect.top -= BALL_SPEED
-	elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle_rect.bottom < SCREEN_HEIGHT:
+	elif pygame.key.get_pressed()[pygame.K_s] and paddle_rect.bottom < SCREEN_HEIGHT:
 		paddle_rect.top += BALL_SPEED
 	elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
 		sys.exit(0)
@@ -98,6 +102,8 @@ while True:
 
 	# Render the ball, the paddle, and the score
 	pygame.draw.rect(screen, (0, 0, 0), paddle_rect) # Your paddle
+	pygame.draw.rect(screen, (0, 0, 0), paddle2_rect) # Your paddle
+	pygame.draw.rect(screen, (255, 0, 0), pygame.Rect((SCREEN_WIDTH/2, 0), (2, SCREEN_HEIGHT)))
 	pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
 	score_text = font.render(str(score), True, (0, 0, 0))
 	score_text2 = font.render(str(score2), True, (0, 0, 0))
@@ -107,3 +113,41 @@ while True:
 	# Update screen and wait 20 milliseconds
 	pygame.display.flip()
 	pygame.time.delay(20)
+	
+	while score >= 11:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				sys.exit(0)
+				pygame.quit()
+		
+		if pygame.key.get_pressed()[pygame.K_n]:
+			score = 0
+			score2 = 0
+			
+		win_text = font.render("Player 1 wins!", True, (0,0,255))
+		inst_text = font.render("Press 'n' to play a new game!", True, (255, 0, 100))
+		screen.blit(win_text, ((SCREEN_WIDTH/2 - font.size("Player 1 wins!")[0]/2), 5))
+		screen.blit(inst_text, ((SCREEN_WIDTH/2 - font.size("Press 'n' to play a new game!")[0]/2), 30))
+		
+		# Update screen and wait 20 milliseconds
+		pygame.display.flip()
+		pygame.time.delay(20)
+	
+	while score2 >= 11:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				sys.exit(0)
+				pygame.quit()
+		
+		if pygame.key.get_pressed()[pygame.K_n]:
+			score = 0
+			score2 = 0
+			
+		win_text = font.render("Player 2 wins!", True, (0,0,255))
+		inst_text = font.render("Press 'n' to play a new game!", True, (255, 0, 100))
+		screen.blit(win_text, ((SCREEN_WIDTH/2 - font.size("Player 2 wins!")[0]/2), 5))
+		screen.blit(inst_text, ((SCREEN_WIDTH/2 - font.size("Press 'n' to play a new game!")[0]/2), 30))
+		
+		# Update screen and wait 20 milliseconds
+		pygame.display.flip()
+		pygame.time.delay(20)
